@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kit NQL · Nutri que Lucra</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1410;--ink-med:#2d2218;--gold:#9d8768;--gold-dark:#6b5740;--gold-light:#c4b49e;--gold-pale:#f5efe8;--cream:#faf7f3;--sand:#f0e9df;--muted:#7a6a58;--ghost:#b09880;--white:#fff;--green:#2a6e47;--green-dark:#1b3d27;--green-pale:#edf7f1;--red:#c0392b;--blue:#2563a8;--purple:#6b21a8}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow:hidden}
+.shell{display:flex;height:100vh}
+
+.sidebar{width:54px;flex-shrink:0;background:var(--ink);display:flex;align-items:flex-start;justify-content:center;padding:18px 0;position:sticky;top:0;height:100vh;z-index:200;overflow:visible}
+.s-search{position:relative}
+.s-sw{position:relative}
+.s-si{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:rgba(196,180,158,.55);pointer-events:none;transition:all .2s;z-index:1}
+.s-inp{width:36px;height:36px;font-family:'Poppins',sans-serif;font-size:12px;background:rgba(255,255,255,.07);border:1px solid rgba(196,180,158,.18);color:var(--white);border-radius:10px;padding:0;outline:none;transition:all .25s ease;cursor:pointer;caret-color:var(--gold-light)}
+.s-inp::placeholder{color:transparent;transition:color .2s}
+.s-inp:focus{width:260px;padding:9px 13px 9px 36px;cursor:text;border-color:rgba(196,180,158,.4);background:rgba(255,255,255,.1)}
+.s-inp:focus::placeholder{color:rgba(196,180,158,.35)}
+.s-inp:focus ~ .s-si{left:12px;top:50%;transform:translateY(-50%);color:rgba(196,180,158,.6)}
+.s-drop{display:none;position:absolute;top:calc(100% + 6px);left:0;width:280px;background:#1e1610;border:1px solid rgba(196,180,158,.2);border-radius:9px;z-index:9999;max-height:270px;overflow-y:auto;box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.s-drop.open{display:block}
+.sd-item{padding:9px 13px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.65);border-bottom:1px solid rgba(196,180,158,.07);transition:background .15s;line-height:1.4}
+.sd-item:last-child{border-bottom:none}.sd-item:hover{background:rgba(157,135,104,.15);color:var(--white)}
+.sd-type{font-size:10px;color:rgba(196,180,158,.4);display:block;margin-top:1px}
+.sd-empty{padding:13px;font-size:12px;color:rgba(196,180,158,.4);font-style:italic;text-align:center}
+.s-filters{padding:8px 10px 0;display:flex;flex-wrap:wrap;gap:4px}
+.sf-btn{padding:3px 10px;border:1px solid rgba(196,180,158,.15);border-radius:99px;font-size:10px;color:rgba(196,180,158,.5);cursor:pointer;background:none;font-family:'Poppins',sans-serif;transition:all .15s;white-space:nowrap}
+.sf-btn:hover{border-color:rgba(196,180,158,.35);color:rgba(196,180,158,.8)}.sf-btn.on{border-color:var(--gold);background:rgba(157,135,104,.15);color:var(--gold-light)}
+
+
+
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 11px;margin:1px 5px;border-radius:7px;cursor:pointer;transition:all .18s;font-size:12px;font-weight:400;color:rgba(255,255,255,.55);border:none;background:none;width:calc(100% - 10px);text-align:left;font-family:'Poppins',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}.nav-item.active{background:rgba(157,135,104,.18);color:var(--gold-light);font-weight:500}
+.nav-item .ni{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.ni-badge{margin-left:auto;font-size:9px;padding:2px 7px;border-radius:99px;background:rgba(157,135,104,.2);color:var(--gold-light);flex-shrink:0}
+.nav-item.hidden{display:none}
+.main{flex:1;overflow-y:auto;height:100vh}
+.home-hero{background:linear-gradient(135deg,var(--ink),var(--ink-med));padding:48px 44px 40px;position:relative;overflow:hidden}
+.home-hero::before{content:'';position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:rgba(157,135,104,.06)}
+.hbadge{display:inline-block;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);border:1px solid rgba(196,180,158,.2);padding:5px 16px;border-radius:99px;margin-bottom:14px}
+.htitle{font-family:'Lora',serif;font-size:clamp(22px,3.5vw,34px);font-weight:600;color:var(--white);line-height:1.15;margin-bottom:10px;position:relative;z-index:1}
+.htitle em{color:var(--gold)}.hsub{font-size:13px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.7;max-width:460px;position:relative;z-index:1}
+.home-crime{margin:0;padding:10px 44px;background:rgba(192,57,43,.08);border-bottom:1px solid rgba(192,57,43,.15);font-size:11px;color:rgba(200,100,80,.9);display:flex;gap:8px;align-items:center}
+.home-filters{padding:16px 44px 0;display:flex;gap:7px;flex-wrap:wrap}
+.hf-btn{padding:5px 15px;border:1.5px solid rgba(196,180,158,.3);border-radius:99px;font-size:11.5px;color:var(--muted);cursor:pointer;background:none;font-family:'Poppins',sans-serif;transition:all .18s}
+.hf-btn:hover{border-color:var(--gold);color:var(--gold-dark);background:var(--gold-pale)}.hf-btn.on{border-color:var(--gold-dark);background:var(--gold-pale);color:var(--gold-dark);font-weight:500}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:11px;padding:16px 44px 48px}
+.hcard{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:13px;padding:18px;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(107,87,64,.05);display:flex;flex-direction:column;gap:9px}
+.hcard:hover{border-color:rgba(157,135,104,.35);transform:translateY(-2px);box-shadow:0 8px 20px rgba(107,87,64,.1)}.hcard.hidden{display:none}
+.hcard-icon{font-size:20px;width:40px;height:40px;border-radius:9px;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;border:1px solid rgba(196,180,158,.2)}
+.hcard-icon.g{background:var(--green-pale);border-color:rgba(42,110,71,.15)}.hcard-icon.d{background:var(--ink);border-color:transparent}
+.hcard-name{font-family:'Lora',serif;font-size:13px;font-weight:600;color:var(--ink)}
+.hcard-desc{font-size:11.5px;font-weight:300;color:var(--muted);line-height:1.55}
+.hcard-tag{font-size:10px;font-weight:500;border:1px solid;padding:2px 10px;border-radius:99px;width:fit-content;margin-top:auto}
+.tv{color:var(--gold-dark);border-color:rgba(157,135,104,.3);background:var(--gold-pale)}.tg{color:var(--green);border-color:rgba(42,110,71,.2);background:var(--green-pale)}.tm{color:var(--blue);border-color:rgba(37,99,168,.2);background:#eef4fd}
+.panel{display:none;flex-direction:column;min-height:100vh}.panel.active{display:flex}
+.p-hdr{padding:24px 40px 18px;border-bottom:1px solid rgba(196,180,158,.15);background:var(--white);position:sticky;top:0;z-index:10}
+.p-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ghost);cursor:pointer;margin-bottom:10px;border:none;background:none;font-family:'Poppins',sans-serif;padding:0;transition:color .15s}
+.p-back:hover{color:var(--muted)}
+.p-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.p-it{display:flex;align-items:center;gap:12px}
+.p-ico{font-size:22px;width:46px;height:46px;border-radius:10px;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;border:1px solid rgba(196,180,158,.2);flex-shrink:0}
+.p-ico.g{background:var(--green-pale);border-color:rgba(42,110,71,.15)}.p-ico.d{background:var(--ink);border-color:transparent}
+.p-name{font-family:'Lora',serif;font-size:19px;font-weight:600;color:var(--ink)}.p-cat{font-size:11px;color:var(--ghost);margin-top:2px}
+.btn-cp-all{display:flex;align-items:center;gap:6px;padding:8px 16px;background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--white);border:none;border-radius:99px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-cp-all:hover{opacity:.9;transform:translateY(-1px)}.btn-cp-all.copied{background:linear-gradient(135deg,var(--green-dark),var(--green))}
+.p-body{padding:24px 40px 60px;flex:1}
+.psec{margin-bottom:26px}
+.psec-t{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:11px;display:flex;align-items:center;gap:10px}
+.psec-t::after{content:'';flex:1;height:1px;background:rgba(196,180,158,.2)}
+.sblk{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;overflow:hidden;margin-bottom:8px;box-shadow:0 1px 5px rgba(107,87,64,.04)}
+.slbl{padding:8px 13px;background:var(--gold-pale);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--gold-dark);display:flex;align-items:center;justify-content:space-between}
+.stxt{padding:13px;font-size:13px;line-height:1.75;color:var(--ink);white-space:pre-wrap}
+.stxt em{color:var(--gold-dark);font-style:normal;font-weight:500}
+.bcopy{background:none;border:none;color:var(--ghost);cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;font-family:'Poppins',sans-serif;padding:2px 7px;border-radius:5px;transition:all .15s}
+.bcopy:hover{background:rgba(157,135,104,.1);color:var(--gold-dark)}.bcopy.ok{color:var(--green)}
+.ocard{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;overflow:hidden;margin-bottom:8px;box-shadow:0 1px 5px rgba(107,87,64,.04)}
+.ohdr{display:flex;align-items:center;gap:11px;padding:12px 15px;cursor:pointer;transition:background .15s;user-select:none}
+.ohdr:hover{background:var(--gold-pale)}
+.oem{font-size:17px;flex-shrink:0}.otw{flex:1}.ot{font-size:13px;font-weight:500;color:var(--ink)}.oc{font-size:11px;color:var(--ghost);margin-top:2px}
+.och{color:var(--ghost);transition:transform .25s;font-size:12px;flex-shrink:0}.ocard.open .och{transform:rotate(180deg)}
+.obdy{display:none;padding:0 15px 15px;border-top:1px solid rgba(196,180,158,.15)}.ocard.open .obdy{display:block;animation:fup .2s ease}
+.oscr{font-size:13px;line-height:1.75;color:var(--muted);margin-top:11px;padding:11px;background:var(--cream);border-radius:8px;white-space:pre-wrap}
+.ck-wrap{display:flex;flex-direction:column;gap:6px}
+.ck-prog{display:flex;align-items:center;gap:11px;margin-bottom:12px;padding:10px 13px;background:var(--white);border-radius:9px;border:1px solid rgba(196,180,158,.2)}
+.ck-bar{flex:1;height:5px;background:var(--sand);border-radius:99px;overflow:hidden}
+.ck-fill{height:100%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:99px;transition:width .4s ease}.ck-lbl{font-size:12px;font-weight:500;color:var(--muted);flex-shrink:0}
+.ck-item{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--white);border-radius:9px;border:1px solid rgba(196,180,158,.2);cursor:pointer;transition:all .15s;user-select:none}
+.ck-item:hover{border-color:rgba(157,135,104,.3)}.ck-item.checked{background:var(--green-pale);border-color:rgba(42,110,71,.2)}
+.ck-box{width:18px;height:18px;border-radius:4px;flex-shrink:0;border:1.5px solid rgba(196,180,158,.4);display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px}
+.ck-item.checked .ck-box{background:var(--green);border-color:var(--green)}
+.ck-mark{font-size:10px;color:white;display:none}.ck-item.checked .ck-mark{display:block}
+.ck-txt{font-size:13px;color:var(--ink);line-height:1.5;flex:1}.ck-item.checked .ck-txt{color:var(--muted);text-decoration:line-through}
+.ck-sub{font-size:11px;color:var(--ghost);margin-top:2px;display:block;font-style:italic}.ck-item.checked .ck-sub{display:none}
+.det-blk{font-size:12.5px;color:var(--muted);line-height:1.75;padding:11px 13px;background:var(--white);border-radius:0 0 9px 9px;border:1px solid rgba(196,180,158,.2);border-top:none;margin-bottom:6px;white-space:pre-wrap}
+.wk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px}
+.dc{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;overflow:hidden}
+.dh{padding:8px 12px;background:var(--gold-pale);border-bottom:1px solid rgba(196,180,158,.15)}
+.dn{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-dark)}
+.db{padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.dp{font-size:9px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin:5px 0 2px}
+.di{display:flex;gap:6px;font-size:11.5px;color:var(--muted);line-height:1.4}
+.di::before{content:'·';color:var(--gold);flex-shrink:0;font-weight:700}
+.fc{display:flex;align-items:center;gap:13px;background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;padding:15px 17px;margin-bottom:8px;text-decoration:none;color:inherit;transition:all .2s;box-shadow:0 1px 5px rgba(107,87,64,.04)}
+.fc:hover{border-color:rgba(157,135,104,.3);transform:translateY(-1px);box-shadow:0 5px 16px rgba(107,87,64,.08)}
+.fi{font-size:19px;width:38px;height:38px;border-radius:8px;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;border:1px solid rgba(196,180,158,.2);flex-shrink:0}
+.fn{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}.fd{font-size:11.5px;color:var(--muted)}.fa{margin-left:auto;color:var(--ghost);font-size:15px;flex-shrink:0}
+.rm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px}
+.rmc{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;overflow:hidden;box-shadow:0 1px 5px rgba(107,87,64,.04)}
+.rmh{padding:10px 14px;display:flex;align-items:center;gap:9px;background:var(--gold-pale);border-bottom:1px solid rgba(196,180,158,.15)}
+.rmw{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);background:rgba(157,135,104,.15);padding:2px 8px;border-radius:99px;flex-shrink:0}
+.rmt{font-family:'Lora',serif;font-size:12.5px;font-weight:600;color:var(--ink)}
+.rmb{padding:11px 14px}.rmo{font-size:11.5px;color:var(--muted);margin-bottom:9px;font-style:italic}
+.rmtk{display:flex;gap:7px;font-size:12px;color:var(--ink);padding:4px 0;border-bottom:1px dashed rgba(196,180,158,.2);line-height:1.4}
+.rmtk:last-child{border-bottom:none;padding-bottom:0}.rmtk::before{content:'→';color:var(--gold);flex-shrink:0;font-size:11px;margin-top:1px}
+.fcard{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;overflow:hidden;margin-bottom:9px;box-shadow:0 1px 5px rgba(107,87,64,.04)}
+.fhdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;transition:background .15s;user-select:none}
+.fhdr:hover{background:var(--gold-pale)}
+.ftag{display:flex;align-items:center;gap:9px}
+.fnum{font-size:10px;font-weight:600;background:var(--gold-pale);color:var(--gold-dark);padding:2px 9px;border-radius:99px;border:1px solid rgba(196,180,158,.3)}
+.fttl{font-family:'Lora',serif;font-size:13.5px;font-weight:600;color:var(--ink)}
+.fmeta{display:flex;align-items:center;gap:10px}.fdur{font-size:11px;color:var(--ghost)}
+.fch{color:var(--ghost);transition:transform .25s;font-size:12px}.fcard.open .fch{transform:rotate(180deg)}
+.fbdy{display:none;padding:0 16px 16px;border-top:1px solid rgba(196,180,158,.15)}.fcard.open .fbdy{display:block;animation:fup .2s ease}
+.fdesc{font-size:12.5px;color:var(--muted);line-height:1.65;margin:12px 0 14px;padding:11px;background:var(--cream);border-radius:8px}
+.fsub{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);margin:14px 0 7px;display:flex;align-items:center;gap:8px}
+.fsub::after{content:'';flex:1;height:1px;background:rgba(196,180,158,.2)}
+.tab-row{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:5px 14px;border:1.5px solid rgba(196,180,158,.3);border-radius:99px;font-size:11.5px;color:var(--muted);cursor:pointer;background:none;font-family:'Poppins',sans-serif;transition:all .15s}
+.tab-btn:hover{border-color:var(--gold);color:var(--gold-dark);background:var(--gold-pale)}.tab-btn.on{border-color:var(--gold-dark);background:var(--gold-pale);color:var(--gold-dark);font-weight:500}
+.tab-cnt{display:none}.tab-cnt.on{display:block}
+@keyframes fup{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){body{overflow:auto}.shell{flex-direction:column;height:auto}.sidebar{width:100%;height:auto}.main{height:auto;overflow:visible}.home-hero,.home-crime,.home-filters,.home-grid,.p-hdr,.p-body{padding-left:20px;padding-right:20px}.home-grid{grid-template-columns:1fr 1fr}.rm-grid,.wk-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="s-search">
+    <div class="s-sw">
+      <svg class="s-si" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      <input class="s-inp" id="searchInput" type="text" placeholder="Buscar módulos e conteúdos..." oninput="doSearch(this.value)" onfocus="doSearch(this.value)" onblur="onBlur()" autocomplete="off">
+      <div class="s-drop" id="searchDrop"></div>
+    </div>
+  </div>
+</aside>
+<main class="main">
+
+<div id="panel-home" class="panel active">
+  <div class="home-hero">
+    <div class="hbadge">✦ Exclusivo para alunas · Nutri que Lucra</div>
+    <h1 class="htitle">Seu Kit<br><em>Completo de Ferramentas</em></h1>
+    <p class="hsub">Scripts prontos, funis de venda, roadmap de 90 dias e checklists interativos, tudo em um só lugar.</p>
+  </div>
+  <div class="home-crime">🔒 Material de uso exclusivo das alunas. Compartilhar com terceiros é crime previsto na Lei de Direitos Autorais (Lei 9.610/98).</div>
+  <div class="home-filters">
+    <button class="hf-btn on" onclick="filterHM('all',this)">Todos</button>
+    <button class="hf-btn" onclick="filterHM('vendas',this)">Vendas</button>
+    <button class="hf-btn" onclick="filterHM('marketing',this)">Marketing</button>
+    <button class="hf-btn" onclick="filterHM('gestao',this)">Gestão</button>
+    <button class="hf-btn" onclick="filterHM('ia',this)">IA</button>
+  </div>
+  <div class="home-grid">
+    <div class="hcard" data-cat="vendas" onclick="showPanel('sv')"><div class="hcard-icon">💬</div><div class="hcard-name">Scripts de Vendas</div><div class="hcard-desc">Do primeiro oi ao fechamento. Roteiro completo em 8 mensagens prontas para copiar.</div><div class="hcard-tag tv">Vendas</div></div>
+    <div class="hcard" data-cat="vendas" onclick="showPanel('obj')"><div class="hcard-icon">🛡️</div><div class="hcard-name">Banco de Objeções</div><div class="hcard-desc">Respostas prontas para "não tenho dinheiro", "vou pensar" e mais 4 objeções comuns.</div><div class="hcard-tag tv">Vendas</div></div>
+    <div class="hcard" data-cat="vendas" onclick="showPanel('reat')"><div class="hcard-icon">🔄</div><div class="hcard-name">Reativação de Pacientes</div><div class="hcard-desc">Sequência completa para trazer de volta pacientes inativas, com follow-up estratégico.</div><div class="hcard-tag tv">Vendas</div></div>
+    <div class="hcard" data-cat="vendas" onclick="showPanel('funis')"><div class="hcard-icon d">🎯</div><div class="hcard-name">Funis de Venda</div><div class="hcard-desc">3 funis completos: Reativação de Paciente, Antecipação Ano Novo e Grupo VIP.</div><div class="hcard-tag tv">Vendas</div></div>
+    <div class="hcard" data-cat="vendas" onclick="showPanel('lance')"><div class="hcard-icon">🚀</div><div class="hcard-name">Guia de Lançamento</div><div class="hcard-desc">5 posts estratégicos em checklist interativo para lançar seu programa nutricional.</div><div class="hcard-tag tv">Vendas</div></div>
+    <div class="hcard" data-cat="marketing" onclick="showPanel('rm')"><div class="hcard-icon g">🗺️</div><div class="hcard-name">Roadmap 90 Dias</div><div class="hcard-desc">12 etapas semana a semana do zero ao primeiro lançamento do programa premium.</div><div class="hcard-tag tm">Marketing</div></div>
+    <div class="hcard" data-cat="gestao" onclick="showPanel('rot')"><div class="hcard-icon g">📅</div><div class="hcard-name">Rotina Semanal</div><div class="hcard-desc">Estrutura dia a dia para atendimentos, conteúdo e captação sem deixar nada de lado.</div><div class="hcard-tag tg">Gestão</div></div>
+    <div class="hcard" data-cat="gestao" onclick="showPanel('forms')"><div class="hcard-icon g">📋</div><div class="hcard-name">Formulários</div><div class="hcard-desc">Pré-consulta, pós-consulta, lista de espera e break, tudo linkado e pronto.</div><div class="hcard-tag tg">Gestão</div></div>
+  </div>
+</div>
+
+<div id="panel-sv" class="panel">
+  <div class="p-hdr">
+    <button class="p-back" onclick="showHome()">← Voltar</button>
+    <div class="p-row"><div class="p-it"><div class="p-ico">💬</div><div><div class="p-name">Scripts de Vendas</div><div class="p-cat">Vendas · Lead Iniciou a Conversa</div></div></div>
+    <button class="btn-cp-all" onclick="cpAll('sv-body',this)">📋 Copiar tudo</button></div>
+  </div>
+  <div class="p-body" id="sv-body">
+    <div class="psec"><div class="psec-t">Abertura e conexão</div>
+      <div class="sblk"><div class="slbl">Mensagem 1: Abertura<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Oi, maravilhosa! Que bom te ter aqui.
+
+Antes de te falar sobre valores, quero entender melhor o que te trouxe até mim, pra poder te direcionar com mais clareza.
+
+Me conta: hoje, qual é o seu maior objetivo com a nutrição?</div></div></div>
+    <div class="psec"><div class="psec-t">Venda a experiência</div>
+      <div class="sblk"><div class="slbl">Mensagem 2: Gancho<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Fulana, hoje seu objetivo de <em>[fale o objetivo]</em> é possível e sem dietas malucas!
+
+Mas antes quero te apresentar e explicar como funciona meu acompanhamento pra esse ser nosso ponto de partida!</div></div>
+      <div class="sblk"><div class="slbl">Mensagem 3: Apresentação do Método<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Quero te apresentar como funciona a minha consulta nutricional, porque antes de falarmos dos valores, é importante você saber o que vai viver logo no primeiro atendimento comigo.
+
+<em>Primeiro passo:</em> Assim que você fechar a vaga, nós agendamos a data da sua consulta, então eu já te envio uma ficha pré-consulta e um link pra você enviar suas fotos para a avaliação física.
+
+<em>No dia da consulta:</em> Nós vamos construir juntas sua linha do tempo alimentar e emocional, pra eu entender tudo o que já aconteceu com você até aqui, pra que eu nunca caia no erro de te entregar "só mais uma dieta".
+
+Depois, vamos analisar os resultados da sua avaliação física com base no seu corpo real, rotina e objetivos.
+
+E, juntas, vamos construir seu plano alimentar na hora, com base nas suas preferências, horários, rotina, restrições e gostos reais.
+
+Você sai da consulta com sua dieta pronta, feita com você e para você, pra aplicar imediatamente.
+
+E o melhor: você não fica sozinha depois. Você terá suporte ativo comigo, e você ganha acesso à minha área de membros exclusiva.
+
+<em>Posso te mostrar as formas de pagamentos?</em>
+
+💡 Apresente em áudio e repita a pergunta de forma escrita para gerar curiosidade.</div></div></div>
+    <div class="psec"><div class="psec-t">Prova social e posicionamento</div>
+      <div class="sblk"><div class="slbl">Mensagem 4: Prova Social<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Inclusive, deixa eu te mostrar alguns feedbacks reais de pacientes que viveram esse processo. Vou te encaminhar aqui pra você sentir o que é possível viver também!
+
+<em>(Envie no máximo 3 prints de antes e depois, feedbacks de WhatsApp ou depoimentos emocionantes)</em></div></div>
+      <div class="sblk"><div class="slbl">Mensagem 5: Posicionamento do Método<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Com a minha metodologia, que se chama Método <em>[NOME DO MÉTODO]</em>, algumas pacientes já relatam resultado logo na primeira semana:
+
+, Redução de inchaço
+, Perderam de 1 a 3kg
+, E tudo isso sem dieta maluca, sem restrição, só com escolhas inteligentes que cabem na vida real.
+
+Tudo o que eu entrego é personalizado, validado, com base em ciência comportamental, e respeita sua fase, sua rotina e sua história.</div></div></div>
+    <div class="psec"><div class="psec-t">Envio de pacotes e fechamento</div>
+      <div class="sblk"><div class="slbl">Mensagem 6: Envio dos Pacotes<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Vou te enviar agora as opções de programas que tenho. Você vai ver o que está incluso, o tempo de acompanhamento e os diferenciais.
+
+📎 <em>Envie as lâminas (sem valores ainda, se for sua estratégia)</em>
+
+Entre esses, qual faz mais sentido com o seu momento de vida agora?</div></div>
+      <div class="sblk"><div class="slbl">Mensagem 7: Valores e Bônus<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Perfeito! Maravilhosa, o Método Além do Peso hoje está no valor cheio de R$<em>[XX]</em>.
+
+Mas como você ainda não conhece meu trabalho por dentro, e eu realmente quero que você viva esse processo, hoje ele fica pra você por R$<em>[XX]</em> à vista, ou em até 12x de R$<em>[XXX]</em>, no cartão.
+
+E quem garante a vaga agora ainda recebe: o e-book <em>"[NOME DO EBOOK]"</em>, que não está disponível na comunidade.
+
+Em qual forma de pagamento você prefere, pix ou crédito?</div></div>
+      <div class="sblk"><div class="slbl">Mensagem 8: Sinal e Urgência<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div>
+      <div class="stxt">Se quiser garantir sua vaga com sinal de R$150 hoje, consigo manter essas condições por até 48h pra você se organizar com o restante. Quer fazer assim?
+
+💡 Não force. Direcione com leveza. Ative urgência e reciprocidade.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="panel-obj" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico">🛡️</div><div><div class="p-name">Banco de Objeções</div><div class="p-cat">Vendas · 6 objeções · Clique para expandir</div></div></div></div></div>
+  <div class="p-body"><div id="obj-list"></div></div>
+</div>
+
+<div id="panel-reat" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico">🔄</div><div><div class="p-name">Reativação de Pacientes</div><div class="p-cat">Vendas · Pacientes Inativas</div></div></div>
+  <button class="btn-cp-all" onclick="cpAll('reat-body',this)">📋 Copiar tudo</button></div></div>
+  <div class="p-body" id="reat-body">
+    <div class="tab-row">
+      <button class="tab-btn on" onclick="swTab(this,'t-ac')">Acompanhamento Premium</button>
+      <button class="tab-btn" onclick="swTab(this,'t-fu')">Follow-up</button>
+    </div>
+    <div class="tab-cnt on" id="t-ac">
+      <div class="psec"><div class="psec-t">Sequência principal</div>
+        <div class="sblk"><div class="slbl">Mensagem 1: Reconexão<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Oi Maravilhosa! Como estão as coisas por aí?
+
+Estou te enviando essa mensagem para saber como você está.
+
+Quando você iniciou comigo seu objetivo era <em>[OBJETIVO DO PACIENTE]</em>. Você ainda está com essa prioridade?</div></div>
+        <div class="sblk"><div class="slbl">Mensagem 2: Oportunidade Exclusiva<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Maravilhosa, por você já ter sido minha paciente, eu tenho uma oportunidade exclusiva feita sob medida.
+
+Estou com uma nova forma de acompanhamento premium, e nessa semana estou com uma condição especial. Posso te explicar melhor como funciona?</div></div>
+        <div class="sblk"><div class="slbl">Mensagem 3: Apresentação<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Esse acompanhamento premium é focado exclusivamente em <em>[OBJETIVO DO PACIENTE]</em>, por isso lembrei de você.
+
+São <em>[X consultas]</em>, <em>[X avaliações físicas]</em>, <em>[X dias de acompanhamento]</em> e fechando essa semana, além de entrar na Comunidade das Maravilhosas, você recebe:
+, Acesso à área de membros exclusiva
+, Kit especial na sua casa
+
+Faz sentido pra você, Fulana?</div></div>
+        <div class="sblk"><div class="slbl">Mensagem 4: Valores<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Perfeito Maravilhosa, hoje esse acompanhamento custa R$2.500, mas como você já foi minha paciente ele sai por R$1.400 ou 12x de R$117.
+
+Você prefere adquirir pelo pix ou cartão de crédito?</div></div>
+      </div>
+    </div>
+    <div class="tab-cnt" id="t-fu">
+      <div class="psec"><div class="psec-t">Sequência de follow-up</div>
+        <div class="sblk"><div class="slbl">Follow-up 1: Ebook Presente<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Maravilhosa, estou passando aqui para te presentear com um ebook que apenas minhas pacientes desse acompanhamento têm acesso, só uma amostra do que você vai receber.
+
+Se quiser o ebook, envie <em>"EU QUERO"</em>.</div></div>
+        <div class="sblk"><div class="slbl">Follow-up 2: Pós Ebook<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Maravilhosa, me conta o que você achou do e-book? Você ficou com alguma dúvida?</div></div>
+        <div class="sblk"><div class="slbl">Follow-up 3: Visão de Futuro<button class="bcopy" onclick="cpBlk(this)">📋 Copiar</button></div><div class="stxt">Oi Maravilhosa, imagine você chegar em dezembro com <em>[OBJETIVO]</em> cumprido.
+
+O acompanhamento premium é focado exclusivamente em <em>[OBJETIVO DO PACIENTE]</em>, por isso lembrei de você.
+
+São <em>[X consultas]</em>, <em>[X avaliações]</em>, <em>[X dias]</em> e fechando essa semana você recebe:
+, Acesso à área de membros exclusiva
+, Kit especial na sua casa
+
+Faz sentido pra você, Fulana?</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="panel-funis" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico d">🎯</div><div><div class="p-name">Funis de Venda</div><div class="p-cat">Vendas · 3 funis completos · Scripts e checklists</div></div></div></div></div>
+  <div class="p-body" id="funis-body"><p style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.7">Três funis completos com estratégia, checklist pré-funil e scripts prontos para copiar e colar. Clique em cada funil para expandir.</p></div>
+</div>
+
+<div id="panel-lance" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico">🚀</div><div><div class="p-name">Guia de Lançamento</div><div class="p-cat">Vendas · 5 posts estratégicos · Checklist interativo</div></div></div></div></div>
+  <div class="p-body">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.7">Linha editorial estratégica para divulgar e vender seu programa. Marque cada post conforme for publicando.</p>
+    <div class="ck-wrap" id="lance-list">
+      <div class="ck-prog"><div class="ck-bar"><div class="ck-fill" id="lance-fill" style="width:0%"></div></div><div class="ck-lbl" id="lance-lbl">0 de 5 publicados</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="panel-rm" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico g">🗺️</div><div><div class="p-name">Roadmap 90 Dias</div><div class="p-cat">Marketing · 12 semanas · Do zero ao programa lançado</div></div></div></div></div>
+  <div class="p-body">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.7">Seu plano semana a semana para construir autoridade, criar seu programa premium e fazer o primeiro lançamento.</p>
+    <div class="rm-grid" id="rm-grid"></div>
+  </div>
+</div>
+
+<div id="panel-rot" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico g">📅</div><div><div class="p-name">Rotina Estratégica Semanal</div><div class="p-cat">Gestão · Estrutura diária</div></div></div></div></div>
+  <div class="p-body">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.7">Organização semanal para fortalecer relacionamento com pacientes, gerar leads e manter presença digital consistente.</p>
+    <div class="wk-grid" id="wk-grid"></div>
+  </div>
+</div>
+
+<div id="panel-forms" class="panel">
+  <div class="p-hdr"><button class="p-back" onclick="showHome()">← Voltar</button>
+  <div class="p-row"><div class="p-it"><div class="p-ico g">📋</div><div><div class="p-name">Formulários</div><div class="p-cat">Gestão · Google Forms</div></div></div></div></div>
+  <div class="p-body">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.7">Clique para abrir direto no Google Forms.</p>
+    <a class="fc" href="https://forms.gle/PpfS95kPheH2Yett9" target="_blank"><div class="fi">📝</div><div><div class="fn">Ficha de Pré-Consulta Nutricional</div><div class="fd">Enviar antes da primeira consulta para coletar histórico e objetivos.</div></div><span class="fa">›</span></a>
+    <a class="fc" href="https://forms.gle/nXM8uFzEo33gEPT48" target="_blank"><div class="fi">⭐</div><div><div class="fn">Feedback Pós-Consulta e Acompanhamento</div><div class="fd">Coletar avaliação da experiência e resultados após cada consulta.</div></div><span class="fa">›</span></a>
+    <a class="fc" href="https://forms.gle/aNcar5CQeD7BJtWR8" target="_blank"><div class="fi">⏳</div><div><div class="fn">Lista de Espera para Atendimento</div><div class="fd">Cadastrar interessadas que aguardam uma vaga.</div></div><span class="fa">›</span></a>
+    <a class="fc" href="https://forms.gle/YFLXQ7Q5VcS1vm1E9" target="_blank"><div class="fi">⏸️</div><div><div class="fn">Formulário de Break</div><div class="fd">Formalizar pausas no acompanhamento com motivo e prazo de retorno.</div></div><span class="fa">›</span></a>
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+const OBJS=[
+  {e:'⏱️',t:'Não tenho tempo',c:'Tempo',s:'Maravilhosa, eu consigo te agendar em horários que sejam mais tranquilos para você e criar um plano alimentar que caiba no seu tempo e rotina.'},
+  {e:'😔',t:'Eu já fiz dietas e não funcionaram',c:'Prioridade',s:'Maravilhosa, eu entendo sua situação. Já atendi muitas mulheres que passaram pela mesma coisa.\n\nPor isso eu quero te dizer que cada método é diferente. Eu personalizo cada detalhe do seu plano para que se encaixe na sua vida!'},
+  {e:'🤔',t:'Vou pensar',c:'Prioridade',s:'Pensar é uma parte muito importante, pois todas as maravilhosas têm a vida mudada, pra melhor, após iniciar o acompanhamento.\n\nEu posso tirar alguma dúvida específica para te ajudar nessa decisão?'},
+  {e:'👫',t:'Preciso falar com meu Marido / Esposa',c:'Prioridade',s:'Claro maravilhosa, eu concordo com você. Quando casamos nosso parceiro se torna uma parte essencial nesse processo.\n\nInclusive, podemos marcar uma sessão gratuita para nós 3 conversarmos melhor. No dia XX às XXh vocês possuem disponibilidade?'},
+  {e:'💰',t:'Está muito caro',c:'Preço',s:'Eu entendo Maravilhosa, mas posso te mostrar formas personalizadas de pagamento.'},
+  {e:'😟',t:'Não tenho dinheiro',c:'Preço',s:'Eu compreendo maravilhosa, posso te apresentar planos mais acessíveis que te trarão resultados para você iniciar sua mudança?'},
+];
+const FUNIS=[
+  {n:'FUNIL 1',t:'Reativação de Paciente',d:'7 dias',o:'Trazer de volta pacientes inativas utilizando conexão, autoridade, oferta especial de retorno e follow-up estratégico.',c:'WhatsApp (individual) e Instagram (DM, abordagem manual).',a:'Acolhedora, personalizada, direta, nada robotizada.',m:'Taxa de resposta: 30% em 48h · Conversão: 20 a 40% · Meta de caixa: R$1.000 a R$10.000',
+   ck:['Puxar lista de ex-pacientes dos últimos 24 meses','Separar por ordem de vínculo: forte, médio, fraco','Anotar objetivo original de cada paciente','Preparar prints de provas sociais','Preparar uma condição especial de retorno','Criar bloco de notas com nome, objetivo e estágio do funil','Meta diária: 20 a 30 conversas por dia'],
+   sc:[{l:'Dia 1: Reconexão',tx:'Oi Maravilhosa! Como estão as coisas por aí?\n\nEstava revisando meus acompanhamentos e lembrei de você.\n\nComo você está?'},{l:'Dia 1: Personalização',tx:'Quando você iniciou comigo, seu objetivo era [OBJETIVO].\n\nVocê ainda sente isso como prioridade?'},{l:'Dia 2: Condição Especial',tx:'Maravilhosa, por você já ter sido minha paciente, eu tenho uma oportunidade exclusiva feita sob medida.\n\nEstou com uma nova forma de acompanhamento premium, e nessa semana estou com uma condição especial. Posso te explicar melhor como funciona?'},{l:'Dia 3: Vendendo a Experiência',tx:'Maravilhosa, antes de falar sobre valores, quero te explicar como funciona meu acompanhamento.\n\n✔ Ficha pré-consulta\n✔ Linha do tempo alimentar e emocional\n✔ Análise física personalizada\n✔ Montagem da dieta AO VIVO\n✔ Suporte ativo e área de membros\n\nFaz sentido pra você?'},{l:'Dia 4: Prova Social',tx:'Deixa eu te mostrar alguns feedbacks de pacientes que voltaram comigo.\n\n[Envie até 3 prints de resultados reais]\n\nEssa poderia ser você também.'}]},
+  {n:'FUNIL 2',t:'Antecipação Ano Novo',d:'7 dias',o:'Gerar caixa antecipado vendendo o Protocolo Oficial 2026. A paciente paga agora, recebe suporte imediato, mas começa oficialmente em 15/01.',c:'WhatsApp, DM e Lista de Interesse.',a:'Estratégica, emocional e com visão de futuro.',m:'Meta de caixa: R$2.000 a R$20.000 · Respostas em 48h: 25% · Conversão: 30 a 50%',
+   ck:['Criar material "O que você recebe ao garantir 2026 agora"','Preparar PDF com: suporte, checklist, controle de danos, mini protocolo','Criar prova social de quem já garantiu','Organizar lista de pessoas que conversaram ao longo do ano','Criar lista de interesse "Comece 2026 do jeito certo"','Meta diária: 20 conversas abertas por dia'],
+   sc:[{l:'Dia 1: Abertura da Campanha',tx:'Oi, maravilhosa!\n\nPassei pra te avisar que abri as vagas para começar o acompanhamento comigo em 2026, com início oficial dia 15 de janeiro.\n\nMas quem garante agora já recebe suporte imediato e bônus exclusivos desse mês.\n\nPosso te explicar como funciona?'},{l:'Dia 2: Storytelling',tx:'Deixa eu te contar uma coisa:\n\nA maioria das mulheres tenta começar tudo do zero em janeiro e desiste em 10 dias.\n\nNão por falta de força, mas por falta de PREPARO.\n\nPor isso, quem garante agora entra com clareza, rotina organizada e planejamento pronto.\n\nVocê quer começar 2026 com tudo no lugar?'},{l:'Dia 3: Como Funciona',tx:'Funciona assim, maravilhosa:\n\n✔ Você garante agora\n✔ Entra no suporte imediato\n✔ Recebe controle de danos pra dezembro\n✔ Recebe checklist pré-consulta\n✔ E sua jornada oficial começa em 15/01/2026\n\nVocê começa leve, pronta e organizada.'},{l:'Dia 4: Prova Social',tx:'Olha o que algumas pacientes que já garantiram 2026 falaram:\n\n[Envie até 3 prints de depoimentos reais]\n\nEssa poderia ser você também. Quer garantir sua vaga?'}]},
+  {n:'FUNIL 3',t:'Grupo VIP',d:'15 dias',o:'Do Instagram ao grupo, ao aquecimento, à abertura e ao fechamento. Tudo pronto para copiar e colar.',c:'Instagram e WhatsApp.',a:'A pessoa não está entrando só num grupo. Ela está entrando em um ambiente premium, limitado e especial.',m:'Inscritos na lista: 10 a 25% do engajamento · Conversão: 30 a 50% · Meta de caixa: R$2.000 a R$20.000 · Mínimo 7 stories diários com CTA',
+   ck:['Criar grupo: "LISTA VIP DA NUTRI: Comece 2026 do jeito certo"','Criar imagem de capa com título e subtítulo','Separar: 10 provas sociais, 5 prints de suporte, 5 áudios de aula curta, 2 mini-PDFs','Escrever mini pitch da oferta','Gravar 2 vídeos curtos','Separar link da área de pagamentos'],
+   sc:[{l:'Dia 1: Reels, Anúncio Oficial (script para gravar)',tx:'Nutri, abri oficialmente a LISTA VIP para mulheres que querem começar 2026 do jeito certo.\n\nQuem entrar vai receber tudo antes: bônus, materiais e a condição especial da abertura.\n\nComenta VIP ou me manda no direct "VIP" que te adiciono!'},{l:'Dia 1: DM para quem comentou',tx:'Maravilhosa! Vou te colocar na Lista VIP. Me manda seu número?'},{l:'Dia 2: Stories, Gatilho da Dor',tx:'5 sinais de que você PRECISA de acompanhamento antes de começar 2026:\n\n1. Começa tudo em janeiro e desiste em 10 dias\n2. Sente que falta planejamento e clareza\n3. Já tentou outras dietas e não funcionou\n4. Quer resultados mas não sabe por onde começar\n5. Sente que está sempre começando do zero\n\n[CTA: "Quer entrar na VIP? Manda VIP!"]'},{l:'Dia 5: Boas-vindas no Grupo',tx:'Oi maravilhosas! Que alegria ter cada uma de vocês aqui.\n\nEsse grupo foi criado com muito carinho para mulheres que querem começar [período] da forma certa.\n\nNos próximos dias vou trazer conteúdo exclusivo, bônus e uma condição muito especial para quem está aqui.\n\nFique atenta! 🤍'}]},
+];
+const LANCE=[
+  {t:'Post 1: Gatilho da Dor (Antecipação)',s:'Mostre que você entende a dor do seu público.',d:'• Identifique a principal dor: dificuldade em emagrecer, falta de energia, compulsão.\n• Use linguagem empática e próxima.\n• Finalize com chamada para acompanhar os próximos conteúdos.'},
+  {t:'Post 2: Apresentação do Método',s:'Explique como funciona seu programa de forma simples.',d:'• Mostre o passo a passo ou pilares do método.\n• Destaque benefícios práticos: mais disposição, emagrecimento sustentável.\n• Inclua bônus exclusivos que o cliente terá ao adquirir.'},
+  {t:'Post 3: Prova Social (História Real)',s:'Antes, desafio, transformação, depois.',d:'• Escolha um caso de sucesso real.\n• Conte em formato narrativo: antes, desafio, transformação, depois.\n• Mostre resultados de forma inspiradora e realista.'},
+  {t:'Post 4: Bastidores do Atendimento',s:'Mostre a experiência de estar no seu programa.',d:'Roteiro para Reels:\n• Entrada no consultório\n• Recepção calorosa\n• Avaliação ou momento de cuidado\n• Benefícios ao entrar no programa\n\nAlternativa: carrossel com imagens ilustrativas.'},
+  {t:'Post 5: Oferta Especial',s:'Chamada clara com urgência e CTA direto.',d:'• Destaque bônus e condições exclusivas.\n• Defina prazo de urgência: "até domingo", "apenas 20 vagas".\n• CTA direto: "Clique no link e garanta sua vaga agora."'},
+];
+const RM=[
+  {s:'Sem. 1',t:'Defina sua base (DNA da Nutri)',o:'Clareza de público e posicionamento.',k:['Preencher formulário de persona: quem você quer atrair','Revisar sua bio com o modelo Rubi','Criar frase de posicionamento em até 12 palavras']},
+  {s:'Sem. 2',t:'Perfil Magnético',o:'Ajustar seu Instagram para atrair pacientes.',k:['Atualizar foto de perfil com postura de autoridade','Organizar destaques','Criar 3 capas de destaque no Canva']},
+  {s:'Sem. 3',t:'Conteúdo Estratégico',o:'Planejar e postar sem travar.',k:['Usar calendário Rubi para planejar 7 dias de posts','Criar 1 carrossel de valor','Postar pelo menos 3 vezes na semana']},
+  {s:'Sem. 4',t:'Autoridade em Ação',o:'Mostrar-se como especialista.',k:['Gravar 1 Reel usando roteiro de autoridade Rubi','Fazer 1 sequência de 3 stories se apresentando','Postar 1 depoimento ou prova social']},
+  {s:'Sem. 5',t:'Espinha Dorsal do Programa',o:'Definir a estrutura do seu Programa Premium.',k:['Escolher duração: 3, 6 ou 12 meses','Preencher o Blueprint Rubi com a jornada do paciente','Definir bônus e diferenciais do programa']},
+  {s:'Sem. 6',t:'Proposta Premium',o:'Ter sua oferta clara e irresistível.',k:['Criar sua proposta','Revisar contrato e modelo de pacotes','Criar apresentação rápida: pitch de 2 minutos']},
+  {s:'Sem. 7',t:'Ferramentas do Atendimento',o:'Profissionalizar seu acompanhamento.',k:['Adaptar anamnese estratégica Rubi','Customizar planilha de evolução','Montar checklist de primeira consulta']},
+  {s:'Sem. 8',t:'Experiência Premium',o:'Criar diferenciação desde o primeiro contato.',k:['Montar pacote de boas-vindas digital em PDF ou Canva','Preparar sequência de e-mails de acompanhamento','Criar roteiro de onboarding: primeiros 7 dias do paciente']},
+  {s:'Sem. 9',t:'Venda Sem Travar',o:'Treinar scripts e destravar vendas.',k:['Treinar script Rubi com colega','Simular uma call de fechamento de 15 min','Montar lista de 10 leads potenciais']},
+  {s:'Sem. 10',t:'Primeiras Ofertas Reais',o:'Abrir conversas e fazer as primeiras propostas.',k:['Enviar 3 mensagens de prospecção no direct ou WhatsApp','Fazer 1 call real de fechamento','Anotar objeções que surgirem']},
+  {s:'Sem. 11',t:'Precificação e Agenda',o:'Definir preço oficial e organizar rotina.',k:['Preencher planilha de precificação Rubi','Definir ticket oficial','Montar agenda ideal: consultas e descanso']},
+  {s:'Sem. 12',t:'Lançamento e Escala',o:'Colocar o programa no mercado.',k:['Criar oferta irresistível de abertura de vagas','Publicar campanha de stories','Abrir pelo menos 3 vagas no programa','Postar resultados no grupo Masterplan']},
+];
+const ROT=[
+  {d:'Segunda',p:{Manhã:['Mensagens de acompanhamento via CRM','Publicar conteúdo educativo no feed'],Tarde:['Atendimentos agendados','Registrar feedbacks no CRM'],Noite:['Reativar contatos adormecidos: 30 dias ou mais','Atualizar pipeline de leads']}},
+  {d:'Terça',p:{Manhã:['Mensagem de suporte aos pacientes ativos','Nutrir leads com conteúdo exclusivo'],Tarde:['Atendimentos','Stories de bastidores'],Noite:['Revisar oportunidades no CRM','Post de oferta no feed']}},
+  {d:'Quarta',p:{Manhã:['Mensagem de suporte','Disparar campanha no CRM para leads','Caixinha de perguntas nos stories'],Tarde:['Atendimentos','Stories de rotina'],Noite:['Atualizar status dos leads','Post fotográfico no feed']}},
+  {d:'Quinta',p:{Manhã:['Mensagem de suporte','Conteúdo exclusivo para pacientes via CRM','Oferta de sessão estratégica para leads'],Tarde:['Atendimentos','Quadro fixo nos stories'],Noite:['Revisar métricas: taxa de resposta e agendamentos','Postar Reels']}},
+  {d:'Sexta',p:{Manhã:['Mensagem de suporte','Revisar metas da semana','Programar posts da próxima semana'],Tarde:['Atendimentos'],Noite:['Atualizar pipeline no CRM','Postar conteúdo leve']}},
+  {d:'Fim de semana',p:{Manhã:['Stories descontraídos de rotina pessoal e profissional'],Tarde:['Interagir com seguidores: comentários e directs'],Noite:['Reforçar autoridade com dicas rápidas']}},
+];
+
+// ÍNDICE DE BUSCA
+let IDX=[];
+function buildIdx(){
+  IDX=[];
+  document.querySelectorAll('.nav-item[data-label]').forEach(el=>{
+    IDX.push({lb:el.dataset.label,idx:(el.dataset.label+' '+(el.dataset.idx||'')).toLowerCase(),pan:el.getAttribute('onclick')?.match(/'([^']+)'/)?.[1]||'',tp:'Módulo'});
+  });
+  document.querySelectorAll('#sv-body .sblk').forEach(bl=>{
+    const lb=bl.querySelector('.slbl')?.innerText?.replace('📋 Copiar','').trim()||'';
+    const tx=bl.querySelector('.stxt')?.innerText||'';
+    IDX.push({lb,idx:(lb+' '+tx).toLowerCase(),pan:'sv',tp:'Script de Venda'});
+  });
+  OBJS.forEach(o=>IDX.push({lb:'"'+o.t+'"',idx:(o.t+' '+o.s+' '+o.c).toLowerCase(),pan:'obj',tp:'Objeção'}));
+  FUNIS.forEach(f=>{const idx=[f.t,f.o,f.c,f.a,...f.ck,...f.sc.map(s=>s.l+' '+s.tx)].join(' ').toLowerCase();IDX.push({lb:f.n+': '+f.t,idx,pan:'funis',tp:'Funil de Venda'});});
+  LANCE.forEach(l=>IDX.push({lb:l.t,idx:(l.t+' '+l.s+' '+l.d).toLowerCase(),pan:'lance',tp:'Guia de Lançamento'}));
+  RM.forEach(r=>IDX.push({lb:r.s+': '+r.t,idx:(r.t+' '+r.o+' '+r.k.join(' ')).toLowerCase(),pan:'rm',tp:'Roadmap 90 Dias'}));
+  ROT.forEach(r=>{const all=Object.values(r.p).flat().join(' ');IDX.push({lb:'Rotina de '+r.d,idx:(r.d+' '+all).toLowerCase(),pan:'rot',tp:'Rotina Semanal'});});
+}
+function doSearch(q){
+  const dr=document.getElementById('searchDrop');
+  if(!q||q.length<2){dr.classList.remove('open');return;}
+  const ql=q.toLowerCase();
+  const hits=IDX.filter(i=>i.lb.toLowerCase().includes(ql)||i.idx.includes(ql)).slice(0,9);
+  dr.innerHTML=hits.length
+    ?hits.map(h=>`<div class="sd-item" onclick="showPanel('${h.pan}');closeDrop()"><span style="font-weight:500">${h.lb}</span><span class="sd-type">${h.tp}</span></div>`).join('')
+    :'<div class="sd-empty">Nenhum resultado encontrado</div>';
+  dr.classList.add('open');
+}
+function closeDrop(){document.getElementById('searchDrop').classList.remove('open');document.getElementById('searchInput').value='';}
+document.addEventListener('click',e=>{if(!e.target.closest('.s-sw'))closeDrop();});
+function onBlur(){setTimeout(closeDrop,200);}
+
+// FILTROS
+function filterSB(cat,btn){document.querySelectorAll('.sf-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('.nav-item[data-cat]').forEach(el=>{el.classList.toggle('hidden',cat!=='all'&&el.dataset.cat!==cat&&el.dataset.cat!=='all');});}
+function filterHM(cat,btn){document.querySelectorAll('.hf-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('.hcard').forEach(el=>{el.classList.toggle('hidden',cat!=='all'&&el.dataset.cat!==cat);});}
+
+// NAVEGAÇÃO
+function showHome(btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-home').classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));}
+function showPanel(id,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+id)?.classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');else{const f=document.querySelector(`.nav-item[onclick*="'${id}'"]`);if(f)f.classList.add('active');}document.querySelector('.main')?.scrollTo({top:0,behavior:'smooth'});}
+
+// TABS
+function swTab(btn,tid){const p=btn.closest('.p-body');p.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));p.querySelectorAll('.tab-cnt').forEach(c=>c.classList.remove('on'));btn.classList.add('on');document.getElementById(tid)?.classList.add('on');}
+
+// COPIAR
+function cpBlk(btn){const tx=btn.closest('.sblk')?.querySelector('.stxt')?.innerText||'';doCp(tx,btn);}
+function cpAll(id,btn){const tx=document.getElementById(id)?.innerText||'';doCp(tx,btn);}
+function doCp(tx,btn){
+  const ok=()=>{if(!btn)return;const o=btn.innerHTML;btn.classList.add('ok');btn.innerHTML=btn.innerHTML.replace(/Copiar.*/,'Copiado!');setTimeout(()=>{btn.innerHTML=o;btn.classList.remove('ok');},2200);};
+  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(tx).then(ok).catch(()=>fb(tx,ok));else fb(tx,ok);
+}
+function fb(tx,cb){const ta=document.createElement('textarea');ta.value=tx;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');if(cb)cb();}catch(e){}document.body.removeChild(ta);}
+
+// RENDER OBJEÇÕES
+function renderObj(){
+  document.getElementById('obj-list').innerHTML=OBJS.map((o,i)=>`
+    <div class="ocard" id="oc-${i}">
+      <div class="ohdr" onclick="toggleObj(${i})"><span class="oem">${o.e}</span><div class="otw"><div class="ot">"${o.t}"</div><div class="oc">${o.c}</div></div><span class="och">▾</span></div>
+      <div class="obdy"><div class="oscr">${o.s.replace(/\n/g,'<br>')}</div>
+      <div style="margin-top:9px"><button class="bcopy" onclick="doCp(\`${o.s.replace(/`/g,'\\`')}\`,this)">📋 Copiar resposta</button></div></div>
+    </div>`).join('');
+}
+function toggleObj(i){document.getElementById('oc-'+i).classList.toggle('open');}
+
+// RENDER FUNIS
+function renderFunis(){
+  const c=document.getElementById('funis-body');
+  FUNIS.forEach((f,i)=>{
+    const d=document.createElement('div');d.className='fcard';d.id='fc-'+i;
+    d.innerHTML=`<div class="fhdr" onclick="toggleFunil(${i})"><div class="ftag"><span class="fnum">${f.n}</span><span class="fttl">${f.t}</span></div><div class="fmeta"><span class="fdur">${f.d}</span><span class="fch">▾</span></div></div>
+    <div class="fbdy">
+      <div class="fdesc"><strong>Objetivo:</strong> ${f.o}<br><br><strong>Canal:</strong> ${f.c}<br><strong>Abordagem:</strong> ${f.a}<br><br><strong>Métricas:</strong> ${f.m}</div>
+      <div class="fsub">✅ Checklist pré-funil</div>
+      ${f.ck.map(k=>`<div class="ck-item" onclick="this.classList.toggle('checked')"><div class="ck-box"><span class="ck-mark">✓</span></div><div class="ck-txt">${k}</div></div>`).join('')}
+      <div class="fsub">Scripts prontos</div>
+      ${f.sc.map(s=>`<div class="sblk"><div class="slbl">${s.l}<button class="bcopy" onclick="doCp(\`${s.tx.replace(/`/g,'\\`')}\`,this)">📋 Copiar</button></div><div class="stxt">${s.tx.replace(/\n/g,'<br>')}</div></div>`).join('')}
+    </div>`;
+    c.appendChild(d);
+  });
+}
+function toggleFunil(i){document.getElementById('fc-'+i).classList.toggle('open');}
+
+// RENDER LANÇAMENTO
+function renderLance(){
+  const c=document.getElementById('lance-list');
+  LANCE.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='ck-item';d.id='lc-'+i;
+    d.onclick=()=>{d.classList.toggle('checked');updLance();};
+    d.innerHTML=`<div class="ck-box"><span class="ck-mark">✓</span></div><div class="ck-txt">${item.t}<span class="ck-sub">${item.s}</span></div>`;
+    c.appendChild(d);
+    const det=document.createElement('div');det.className='det-blk';det.textContent=item.d;c.appendChild(det);
+  });
+}
+function updLance(){const done=document.querySelectorAll('[id^="lc-"].checked').length;document.getElementById('lance-fill').style.width=(done/LANCE.length*100)+'%';document.getElementById('lance-lbl').textContent=done+' de '+LANCE.length+' publicados';}
+
+// RENDER ROADMAP
+function renderRM(){document.getElementById('rm-grid').innerHTML=RM.map(r=>`<div class="rmc"><div class="rmh"><span class="rmw">${r.s}</span><span class="rmt">${r.t}</span></div><div class="rmb"><div class="rmo">${r.o}</div>${r.k.map(k=>`<div class="rmtk">${k}</div>`).join('')}</div></div>`).join('');}
+
+// RENDER ROTINA
+function renderRot(){document.getElementById('wk-grid').innerHTML=ROT.map(r=>`<div class="dc"><div class="dh"><div class="dn">${r.d}</div></div><div class="db">${Object.entries(r.p).map(([per,items])=>`<div class="dp">${per}</div>${items.map(i=>`<div class="di">${i}</div>`).join('')}`).join('')}</div></div>`).join('');}
+
+// INIT
+renderObj();renderFunis();renderLance();renderRM();renderRot();
+setTimeout(buildIdx,400);
+</script>
+</body>
+</html>
